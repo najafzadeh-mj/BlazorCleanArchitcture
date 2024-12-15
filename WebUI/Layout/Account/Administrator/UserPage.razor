@@ -1,0 +1,121 @@
+﻿@page "/administrator/account/identity/users"
+@using Application.DTOs.Response.Account
+@using Microsoft.AspNetCore.Authorization
+@using NetcodeHub.Packages.Components.DataGrid
+@using System.Security.Claims
+
+@attribute [Authorize(Roles = Constant.Role.Admin)]
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12">
+        <div class="card border-1 shadow-lg">
+            <div class="card-header fw-bold text-info fs-2">Available Users</div>
+            <div class="card-body">
+                @if (Users != null)
+                {
+                    <NetcodeHubDataGrid 
+                        DataGridFormat="@DataGridFormat.StripedSuccessColumns()" CustomStyle="padding:10px">
+                        <HeaderTemplate>
+                            <th>User Name</th>
+                            <th>User Mail</th>
+                            <th>Change Role</th>
+                        </HeaderTemplate>
+                        <ContentTemplate>
+                            @foreach (var user in Users)
+                            {
+                                <tr>
+                                    <td>@user.Name</td>
+                                    <td>@user.Email</td>
+                                    <td>
+                                        @if (DefaultRoles != null)
+                                        {
+                                            string _roleName = user.RoleName!;
+                                            string selectedRole = "";
+                                            <select class="form-select" @onchange="HandleSelectionChange">
+                                                <option selected="selected" value="@_roleName">@_roleName</option>
+                                                @foreach (var role in DefaultRoles)
+                                                {
+                                                    selectedRole = role.Name;
+                                                    if (role.Name != _roleName)
+                                                    {
+                                                        <option value="@($"{role.Name}_{user.Email}")">@role.Name</option>
+                                                    }
+                                                }
+                                            </select>
+                                        }
+                                        else
+                                        {
+                                            <em>Loading roles...</em>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </ContentTemplate>
+
+                    </NetcodeHubDataGrid>
+                }
+                else
+                {
+                    <em class="text-success text-center fw-bold shadow-lg border-1">Loading data...</em>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+@code {
+    [CascadingParameter]
+    public Task<AuthenticationState>? AuthState { get; set; }
+    private IEnumerable<GetusersWithRolesResponseDTO>? Users { get; set; }
+    private IEnumerable<GetRoleDTO>? DefaultRoles { get; set; }
+
+    ClaimsPrincipal? User;
+
+    private async Task GetUsersWithRoles()
+    {
+        var list = new List<GetusersWithRolesResponseDTO>();
+        list = (await accountService.GetUsersWithRolesAsync()).ToList();
+        list.Remove(list.FirstOrDefault(u => u.Email == User!.Identity.Name)!);
+        Users = list;
+    }
+
+    private async Task GetdeafultRoles() => DefaultRoles = await accountService.GetRolesAsync();
+    private async Task GetAdminInfo() => User = (await AuthState!).User;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await GetAdminInfo();
+            await GetUsersWithRoles();
+            await GetdeafultRoles();
+        }
+        catch { }
+    }
+
+    [Parameter]
+    public EventCallback<(string, string?)> SelecetionChanged { get; set; }
+
+    private async Task HandleSelectionChange(ChangeEventArgs args)
+    {
+        string roleName = args.Value.ToString()!.Split("_")[0];
+        string email = args.Value.ToString()!.Split("_")[1];
+        var result = await accountService.ChangeUserRoleAsync(new ChangeUserRoleRequestDTO(email, roleName));
+        if (result.Flag)
+        {
+
+        }
+        else
+        {
+
+        }
+    }
+
+
+}
