@@ -50,15 +50,15 @@ namespace API.Controllers
         #endregion
 
         #region update
-        [HttpPut("update-vehicles")]
+        [HttpPut("update-vehicle")]
         public async Task<ActionResult<GeneralResponse>> Update(UpdateVehicleRequestDTO model)
             => Ok(await vehicle.UpdateVehicle(model));
 
-        [HttpPut("update-vehicle-brands")]
+        [HttpPut("update-vehicle-brand")]
         public async Task<ActionResult<GeneralResponse>> UpdateBrands(UpdateVehicleBrandRequestDTO model)
             => Ok(await vehicle.UpdateVehicleBrand(model));
 
-        [HttpPut("update-vehicle-owners")]
+        [HttpPut("update-vehicle-owner")]
         public async Task<ActionResult<GeneralResponse>> UpdateOwners(UpdateVehicleOwnerRequestDTO model)
             => Ok(await vehicle.UpdateVehicleOwner(model));
         #endregion

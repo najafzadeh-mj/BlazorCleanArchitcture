@@ -39,6 +39,89 @@
                                     <td>@item.Description</td>
                                     <td>@item.VehicleBrand!.Name</td>
                                     <td>@item.VehicleOwner!.Name</td>
+                                    <td>
+                                        <small class="text-info cursorStyle" @onclick="()=> EditVehicleClicked(item)">Edit</small>
+                                        <AuthorizeView Roles="Admin">
+                                            <small class="text-danger" @onclick="()=> DeleteVehicleClicked(item)">Delete</small>
+                                        </AuthorizeView>
+                                    </td>
+                                </tr>
+                            }
+                        </ContentTemplate>
+                    </NetcodeHubDataGrid>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<hr />
+<div class="row">
+    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6">
+        <div class="card border-1 shadow-lg">
+            <div class="card-header fw-bold text-info fs-4">
+                Vehicle Information
+                <button class="btn btn-info float-end" @onclick="AddBrandClick">+ Add Vehicle Brand</button>
+            </div>
+            <div class="card-body">
+                @if (Vehicles != null)
+                {
+                    <NetcodeHubDataGrid>
+                        <HeaderTemplate>
+                            <th>Id</th>
+                            <th>Name</th>
+                            <th>Location</th>
+                            <th>Action</th>
+                        </HeaderTemplate>
+                        <ContentTemplate>
+                            @foreach (var item in VehicleBrands)
+                            {
+                                <tr>
+                                    <td>@item.Id</td>
+                                    <td>@item.Name</td>
+                                    <td>@item.Location</td>
+                                    <td>
+                                        <small class="text-info cursorStyle" @onclick="()=> EditVehicleBrandClicked(item)">Edit</small>
+                                        <AuthorizeView Roles="Admin">
+                                            <small class="text-danger" @onclick="()=> DeleteVehicleBrandClicked(item)">Delete</small>
+                                        </AuthorizeView>
+                                    </td>
+                                </tr>
+                            }
+                        </ContentTemplate>
+                    </NetcodeHubDataGrid>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6">
+        <div class="card border-1 shadow-lg">
+            <div class="card-header fw-bold text-info fs-4">
+                Vehicle Information
+                <button class="btn btn-info float-end" @onclick="AddOwnerClick">+ Add Vehicle Owner</button>
+            </div>
+            <div class="card-body">
+                @if (Vehicles != null)
+                {
+                    <NetcodeHubDataGrid>
+                        <HeaderTemplate>
+                            <th>Id</th>
+                            <th>Name</th>
+                            <th>Address</th>
+                            <th>Action</th>
+                        </HeaderTemplate>
+                        <ContentTemplate>
+                            @foreach (var item in VehicleOwners)
+                            {
+                                <tr>
+                                    <td>@item.Id</td>
+                                    <td>@item.Name</td>
+                                    <td>@item.Address</td>
+                                    <td>
+                                        <small class="text-info cursorStyle" @onclick="()=> EditVehicleOwnerClicked(item)">Edit</small>
+                                        <AuthorizeView Roles="Admin">
+                                            <small class="text-danger" @onclick="()=> DeleteVehicleOwnerClicked(item)">Delete</small>
+                                        </AuthorizeView>
+                                    </td>
                                 </tr>
                             }
                         </ContentTemplate>
@@ -152,6 +235,54 @@
         VehicleBrands = await vehicleService.GetVehicleBrands();
         VehicleOwners = await vehicleService.GetVehicleOwners();
     }
+    void EditVehicleClicked(GetVehicleResponseDTO model){
+        ModalTitle = "Edit Vehicle Owner";
+        ResetAllShowStates();
+        ResetAllModels();
+        BorderClass = "border-warning rounded p-2 ml-2 mr-2 shadow-lg";
+        ShowVehicleModel = true;
+        IdHolder = model.Id;
+        CreateVehicleModel = model;
+        OpenModal();
+    }
+    void EditVehicleBrandClicked(GetVehicleBrandResponseDTO model){
+        ModalTitle = "Edit Vehicle Brand";
+        ResetAllShowStates();
+        ResetAllModels();
+        BorderClass = "border-warning rounded p-2 ml-2 mr-2 shadow-lg";
+        ShowVehicleBrandModel = true;
+        IdHolder = model.Id;
+        CreateVehicleBrandModel = model;
+        OpenModal();
+    }
+    void EditVehicleOwnerClicked(GetVehicleOwnerResponseDTO model)
+    {
+        ModalTitle = "Edit Vehicle Owner";
+        ResetAllShowStates();
+        ResetAllModels();
+        BorderClass = "border-warning rounded p-2 ml-2 mr-2 shadow-lg";
+        ShowVehicleOwnerModel = true;
+        IdHolder = model.Id;
+        CreateVehicleOwnerModel = model;
+        OpenModal();
+    }
+
+    void DeleteVehicleClicked(GetVehicleResponseDTO model)
+    {
+        IdHolder=model.Id;
+        ModelName=ModelNames.Vehicle;
+        
+    }
+    void DeleteVehicleBrandClicked(GetVehicleBrandResponseDTO model)
+    {
+        IdHolder = model.Id;
+        ModelName = ModelNames.VehicleBrand;
+    }
+    void DeleteVehicleOwnerClicked(GetVehicleOwnerResponseDTO model)
+    {
+        IdHolder = model.Id;
+        ModelName = ModelNames.VehicleOwner;
+    }
 
     void AddVehicleClick()
     {
@@ -217,7 +348,9 @@
         {
             Response = await vehicleService.AddVehicleBrand(CreateVehicleBrandModel);
         }
+        ModelName = ModelNames.VehicleBrand;
         await DisplayToastMessage(Response);
+        //VehicleBrands = await vehicleService.GetVehicleBrands();
     }
     async Task SaveVehicleOwner()
     {
@@ -231,7 +364,10 @@
         {
             Response = await vehicleService.AddVehicleOwner(CreateVehicleOwnerModel);
         }
+        ModelName = ModelNames.VehicleOwner;
         await DisplayToastMessage(Response);
+        //VehicleOwners = await vehicleService.GetVehicleOwners();
+
     }
 
     async Task SaveVehicle()
@@ -246,7 +382,10 @@
         {
             Response = await vehicleService.AddVehicle(CreateVehicleModel);
         }
+        ModelName = ModelNames.Vehicle;
         await DisplayToastMessage(Response);
+        //Vehicles = await vehicleService.GetVehicles();
+
     }
 
     private async Task DisplayToastMessage(GeneralResponse response)
@@ -260,6 +399,7 @@
 
         if (response.Flag)
         {
+            IsOpen = false;
             //await toastService.ShowSuccessToast("Info", response.Message);
         }
         else
