@@ -43,7 +43,7 @@ namespace Infrastructure.DependencyInjection
                 };
             });
 
-            services.AddAuthentication();
+            //services.AddAuthentication();
             services.AddAuthorization();
 
             services.AddCors(o =>
@@ -56,6 +56,7 @@ namespace Infrastructure.DependencyInjection
                     .AllowCredentials());
             });
             services.AddScoped<IAccount,AccountRepository>();
+            services.AddScoped<IVehicle,VehicleRepository>();
             return services;
         }
     }

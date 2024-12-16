@@ -24,6 +24,7 @@ namespace Application.DependencyInjection
             {
                 client.BaseAddress = new Uri("https://localhost:7160/");
             }).AddHttpMessageHandler<CustomHttpHandler>();
+            services.AddScoped<IVehicleService, VehicleService>();
 
             return services;
         }
